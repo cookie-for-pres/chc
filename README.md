@@ -4,7 +4,7 @@
 
 ## What is CHC?
 
-    * CHC is a library for building out HTTP Routes and Controllers.
+    * CHC is a library for building out HTTP Routes and Controllers completely made in GO.
 
 ## What is a Route?
 
