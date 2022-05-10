@@ -1,18 +1,17 @@
 package chc
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type CHC struct {
-	Routes       []*Route
-	Logging      bool
-	EnvVariables map[string]string
+	Routes  []*Route
+	Logging bool
 }
 
 var colors = map[string]string{
@@ -37,9 +36,8 @@ func logRequest(request *Request, statusCode int) {
 // Create a new CHC object
 func NewCHC() *CHC {
 	return &CHC{
-		Routes:       make([]*Route, 0),
-		Logging:      true,
-		EnvVariables: make(map[string]string),
+		Routes:  make([]*Route, 0),
+		Logging: true,
 	}
 }
 
@@ -50,34 +48,18 @@ func (chc *CHC) RequestLogging(logging bool) {
 
 // Load Environment Variables from the given file
 func (chc *CHC) LoadEnv(filePath string) {
-	file, err := os.Open(filePath)
+	err := godotenv.Load(filePath)
 	if err != nil {
 		fmt.Printf("%serror%s - could not load environment variables from %s\n", colors["red"], colors["reset"], filePath)
 		return
 	}
 
-	defer file.Close()
+	fmt.Printf("%sinfo%s - loaded environment variables from %s\n", colors["green"], colors["reset"], filePath)
+}
 
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	for _, line := range lines {
-		kv := strings.Split(line, "=")
-		if len(kv) != 2 {
-			continue
-		}
-
-		chc.EnvVariables[kv[0]] = kv[1]
-	}
-
-	if len(chc.EnvVariables) > 1 {
-		fmt.Printf("%sinfo%s - loaded %d environment variables from %s\n", colors["magenta"], colors["reset"], len(chc.EnvVariables), filePath)
-	} else {
-		fmt.Printf("%sinfo%s - loaded %d environment variable from %s\n", colors["magenta"], colors["reset"], len(chc.EnvVariables), filePath)
-	}
+// Get Environment Variable from the given key
+func (chc *CHC) GetEnv(key string) string {
+	return os.Getenv(key)
 }
 
 // Start the CHC server on the given address and port
