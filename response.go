@@ -1,6 +1,7 @@
 package chc
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -79,7 +80,7 @@ var statusCodes = map[int]string{
 	511: "Network Authentication Required",
 }
 
-func (path *Path) HandleResponse(res *Response, req *Request) string {
+func (route *Route) handleResponse(res *Response, req *Request) string {
 	var response string
 	response += fmt.Sprintf("%s %d %s\r\n", req.Protocol, res.StatusCode, statusCodes[res.StatusCode])
 	for k, v := range res.Headers {
@@ -96,24 +97,70 @@ func (path *Path) HandleResponse(res *Response, req *Request) string {
 	return response
 }
 
+// Create a new response object
+func (request *Request) NewResponse() *Response {
+	response := &Response{}
+	response.Headers = make(map[string]string)
+	response.Cookies = make(map[string]string)
+	response.Body = ""
+	response.StatusCode = 200
+
+	return response
+}
+
+// Set the status code for the response
 func (response *Response) SetStatusCode(statusCode int) {
 	response.StatusCode = statusCode
 }
 
-func (response *Response) SetJsonBody(body string) {
-	response.Body = body
+// Set the response body to a json object
+func (response *Response) SetJsonObjectBody(object map[string]interface{}) error {
+	data, err := json.Marshal(object)
+	if err != nil {
+		return err
+	}
+
+	response.Body = string(data)
 
 	if response.Headers == nil {
 		response.Headers = make(map[string]string)
 	}
 
 	response.Headers["Content-Type"] = "application/json"
+
+	return nil
 }
 
-func (response *Response) SetBody(body string) {
+// Set the response body to a json array
+func (response *Response) SetJsonArrayBody(array []map[string]interface{}) error {
+	data, err := json.Marshal(array)
+	if err != nil {
+		return err
+	}
+
+	response.Body = string(data)
+
+	if response.Headers == nil {
+		response.Headers = make(map[string]string)
+	}
+
+	response.Headers["Content-Type"] = "application/json"
+
+	return nil
+}
+
+// Set the response body to a string
+func (response *Response) SetStringBody(body string) {
 	response.Body = body
+
+	if response.Headers == nil {
+		response.Headers = make(map[string]string)
+	}
+
+	response.Headers["Content-Type"] = "text/plain"
 }
 
+// Set a header for the response
 func (response *Response) SetHeader(key string, value string) {
 	if response.Headers == nil {
 		response.Headers = make(map[string]string)
@@ -122,6 +169,7 @@ func (response *Response) SetHeader(key string, value string) {
 	response.Headers[key] = value
 }
 
+// Set a cookie for the response
 func (response *Response) SetCookie(key string, value string) {
 	if response.Cookies == nil {
 		response.Cookies = make(map[string]string)
@@ -130,10 +178,12 @@ func (response *Response) SetCookie(key string, value string) {
 	response.Cookies[key] = value
 }
 
+// Set the response redirect to a url
 func (response *Response) SetRedirect(url string) {
 	response.SetHeader("Location", url)
 }
 
+// Load a HTML file from a path and set the content type to text/html
 func (response *Response) LoadHtmlFile(filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -158,6 +208,7 @@ func (response *Response) LoadHtmlFile(filePath string) error {
 	return nil
 }
 
+// Set the response to an image from a path
 func (response *Response) LoadImageFile(filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -182,6 +233,7 @@ func (response *Response) LoadImageFile(filePath string) error {
 	return nil
 }
 
+// Get the bytes from and image file
 func (response *Response) GetImageBytes(filepath string) ([]byte, error) {
 	file, err := os.Open(filepath)
 	if err != nil {

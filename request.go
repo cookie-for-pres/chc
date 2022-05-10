@@ -17,7 +17,7 @@ type Request struct {
 	Conn     net.Conn
 }
 
-func (chc *CHC) ParseCookies(cookies string) map[string]string {
+func (chc *CHC) parseCookies(cookies string) map[string]string {
 	cookieMap := make(map[string]string)
 	lines := strings.Split(cookies, "\n")
 	cookieLine := ""
@@ -47,7 +47,7 @@ func (chc *CHC) ParseCookies(cookies string) map[string]string {
 	return cookieMap
 }
 
-func (chc *CHC) ParseHeaders(headers string) map[string]string {
+func (chc *CHC) parseHeaders(headers string) map[string]string {
 	headerMap := make(map[string]string)
 
 	headers = strings.TrimPrefix(headers, "")
@@ -69,7 +69,7 @@ func (chc *CHC) ParseHeaders(headers string) map[string]string {
 	return headerMap
 }
 
-func (chc *CHC) ParseParams(url string) (map[string]string, string) {
+func (chc *CHC) parseParams(url string) (map[string]string, string) {
 	params := make(map[string]string)
 	if !strings.Contains(url, "?") && !strings.Contains(url, "=") && !strings.Contains(url, "&") {
 		return params, url
@@ -93,7 +93,7 @@ func (chc *CHC) ParseParams(url string) (map[string]string, string) {
 	return params, newUrl
 }
 
-func (chc *CHC) ParseRequest(requestString string, conn net.Conn) *Request {
+func (chc *CHC) parseRequest(requestString string, conn net.Conn) *Request {
 	request := &Request{}
 	request.Conn = conn
 	request.Headers = make(map[string]string)
@@ -187,9 +187,9 @@ func (chc *CHC) ParseRequest(requestString string, conn net.Conn) *Request {
 		}
 	}
 
-	cookies := chc.ParseCookies(requestString)
-	headers := chc.ParseHeaders(requestString)
-	params, newUrl := chc.ParseParams(request.URL)
+	cookies := chc.parseCookies(requestString)
+	headers := chc.parseHeaders(requestString)
+	params, newUrl := chc.parseParams(request.URL)
 	request.Cookies = cookies
 	request.Headers = headers
 	request.Params = params
@@ -199,21 +199,8 @@ func (chc *CHC) ParseRequest(requestString string, conn net.Conn) *Request {
 	return request
 }
 
-func (request *Request) NewResponse() *Response {
-	response := &Response{}
-	response.Headers = make(map[string]string)
-	response.Cookies = make(map[string]string)
-	response.Body = ""
-	response.StatusCode = 200
-
-	return response
-}
-
-func (request *Request) GetParam(key string) string {
-	return request.Params[key]
-}
-
-func (request *Request) Json() (map[string]interface{}, error) {
+// Parse the request body as a JSON object and return the result as a map
+func (request *Request) JsonBody() (map[string]interface{}, error) {
 	var jsonData map[string]interface{}
 	err := json.Unmarshal([]byte(request.Body), &jsonData)
 	if err != nil {
@@ -223,7 +210,8 @@ func (request *Request) Json() (map[string]interface{}, error) {
 	return jsonData, nil
 }
 
-func (request *Request) JsonArray() ([]map[string]interface{}, error) {
+// Parse the request body as a JSON array and return the result as a map
+func (request *Request) JsonArrayBody() ([]map[string]interface{}, error) {
 	var jsonData []map[string]interface{}
 	err := json.Unmarshal([]byte(request.Body), &jsonData)
 	if err != nil {
@@ -233,10 +221,10 @@ func (request *Request) JsonArray() ([]map[string]interface{}, error) {
 	return jsonData, nil
 }
 
-func (request *Request) FormData() (map[string]string, error) {
+// Parse the request body as Form Data and return the result as a map
+func (request *Request) FormDataBody() (map[string]string, error) {
 	formData := make(map[string]string)
 	for _, pair := range strings.Split(request.Body, "&") {
-		// fmt.Println(pair)
 		kv := strings.Split(pair, "=")
 		if len(kv) != 2 {
 			continue
