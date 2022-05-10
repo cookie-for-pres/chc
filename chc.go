@@ -54,7 +54,7 @@ func (chc *CHC) LoadEnv(filePath string) {
 		return
 	}
 
-	fmt.Printf("%sinfo%s - loaded environment variables from %s\n", colors["green"], colors["reset"], filePath)
+	fmt.Printf("%sinfo%s - loaded environment variables from %s\n", colors["magenta"], colors["reset"], filePath)
 }
 
 // Get Environment Variable from the given key
