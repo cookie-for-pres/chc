@@ -84,6 +84,7 @@ func (route *Route) handleResponse(res *Response, req *Request) string {
 	var response string
 	response += fmt.Sprintf("%s %d %s\r\n", req.Protocol, res.StatusCode, statusCodes[res.StatusCode])
 	for k, v := range res.Headers {
+		fmt.Println(k, v)
 		response += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
 
@@ -93,17 +94,6 @@ func (route *Route) handleResponse(res *Response, req *Request) string {
 
 	response += "\r\n"
 	response += res.Body
-
-	return response
-}
-
-// Create a new response object
-func (request *Request) NewResponse() *Response {
-	response := &Response{}
-	response.Headers = make(map[string]string)
-	response.Cookies = make(map[string]string)
-	response.Body = ""
-	response.StatusCode = 200
 
 	return response
 }
