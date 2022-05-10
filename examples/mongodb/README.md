@@ -2,8 +2,8 @@
 
 this example shows how to use the CHC basic features including, routes, controllers, cookies, and redirects.
 
-
 ## Usage
+
     $ go mod init example/mongodb
     $ go get github.com/cookie-for-pres/chc
     $ go get go.mongodb.org/mongo-driver/mongo

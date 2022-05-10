@@ -1,7 +1,5 @@
 # Cookie's HTTP Client (CHC)
 
------------------------------------------------------
-
 ## What is CHC?
 
     * CHC is a library for building out HTTP Routes and Controllers completely made in GO.
