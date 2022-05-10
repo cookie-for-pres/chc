@@ -27,6 +27,6 @@ go.sum
 test/
 notes.txt
 .vscode
-examples/
+# examples/
 .env.local
 .env
