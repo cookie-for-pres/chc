@@ -11,5 +11,3 @@
 ## What is a Controller?
 
     * A Controller is how a Route is mapped to a specific function.
-
-## Documentation Coming Soon/In Progress
