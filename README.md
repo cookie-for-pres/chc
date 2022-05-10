@@ -11,3 +11,5 @@
 ## What is a Controller?
 
     * A Controller is how a Route is mapped to a specific function.
+
+**see examples [here](https://github.com/cookie-for-pres/chc-examples)**
