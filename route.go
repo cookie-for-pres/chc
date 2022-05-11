@@ -5,8 +5,8 @@ type Route struct {
 	Methods     []string
 	Headers     map[string]string
 	File        string
-	Controller  func(request *Request, response Response) (response_ *Response)
-	Middlewares []func(response Response) (response_ *Response, next bool)
+	Controller  func(request *Request, response *Response) (response_ *Response)
+	Middlewares []func(response *Response) (response_ *Response, next bool)
 }
 
 func (chc *CHC) handleRoute(route *Route, request *Request) *Response {
@@ -29,17 +29,18 @@ func (chc *CHC) handleRoute(route *Route, request *Request) *Response {
 	}
 
 	if route.Controller != nil {
-		var newResponse Response
-		for _, middleware := range route.Middlewares {
-			response, isNext := middleware(newResponse)
-			newResponse = *response
-			if !isNext {
-				break
+		newResponse := &Response{}
+		if len(route.Middlewares) > 0 {
+			for _, middleware := range route.Middlewares {
+				response, isNext := middleware(newResponse)
+				newResponse = response
+				if !isNext {
+					break
+				}
 			}
 		}
 		response := route.Controller(request, newResponse)
-		// fmt.Println(newResponse)
-		message := route.handleResponse(&newResponse, request)
+		message := route.handleResponse(newResponse, request)
 		request.Conn.Write([]byte(message))
 		return response
 	} else {
@@ -54,7 +55,7 @@ func (chc *CHC) handleRoute(route *Route, request *Request) *Response {
 }
 
 // Create a new route object
-func (chc *CHC) NewRoute(path string, methods []string, headers map[string]string, file string, controller func(request *Request, response Response) (response_ *Response)) *Route {
+func (chc *CHC) NewRoute(path string, methods []string, headers map[string]string, file string, controller func(request *Request, response *Response) (response_ *Response)) *Route {
 	return &Route{
 		Path:       path,
 		Methods:    methods,
@@ -77,12 +78,12 @@ func (chc *CHC) AddRoutes(routes []*Route) {
 }
 
 // Add a middleware to a route
-func (route *Route) AddMiddleware(middleware func(response Response) (response_ *Response, next bool)) {
+func (route *Route) AddMiddleware(middleware func(response *Response) (response_ *Response, next bool)) {
 	route.Middlewares = append(route.Middlewares, middleware)
 }
 
 // Add multiple middlewares to a route
-func (route *Route) AddMiddlewares(middlewares []func(response Response) (response_ *Response, next bool)) {
+func (route *Route) AddMiddlewares(middlewares []func(response *Response) (response_ *Response, next bool)) {
 	for _, middleware := range middlewares {
 		route.AddMiddleware(middleware)
 	}

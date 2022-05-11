@@ -84,7 +84,6 @@ func (route *Route) handleResponse(res *Response, req *Request) string {
 	var response string
 	response += fmt.Sprintf("%s %d %s\r\n", req.Protocol, res.StatusCode, statusCodes[res.StatusCode])
 	for k, v := range res.Headers {
-		fmt.Println(k, v)
 		response += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
 
@@ -99,8 +98,10 @@ func (route *Route) handleResponse(res *Response, req *Request) string {
 }
 
 // Set the status code for the response
-func (response *Response) SetStatusCode(statusCode int) {
+func (response *Response) SetStatusCode(statusCode int) *Response {
 	response.StatusCode = statusCode
+
+	return response
 }
 
 // Set the response body to a json object
@@ -140,7 +141,7 @@ func (response *Response) SetJsonArrayBody(array []map[string]interface{}) error
 }
 
 // Set the response body to a string
-func (response *Response) SetStringBody(body string) {
+func (response *Response) SetStringBody(body string) *Response {
 	response.Body = body
 
 	if response.Headers == nil {
@@ -148,29 +149,37 @@ func (response *Response) SetStringBody(body string) {
 	}
 
 	response.Headers["Content-Type"] = "text/plain"
+
+	return response
 }
 
 // Set a header for the response
-func (response *Response) SetHeader(key string, value string) {
+func (response *Response) SetHeader(key string, value string) *Response {
 	if response.Headers == nil {
 		response.Headers = make(map[string]string)
 	}
 
 	response.Headers[key] = value
+
+	return response
 }
 
 // Set a cookie for the response
-func (response *Response) SetCookie(key string, value string) {
+func (response *Response) SetCookie(key string, value string) *Response {
 	if response.Cookies == nil {
 		response.Cookies = make(map[string]string)
 	}
 
 	response.Cookies[key] = value
+
+	return response
 }
 
 // Set the response redirect to a url
-func (response *Response) SetRedirect(url string) {
+func (response *Response) SetRedirect(url string) *Response {
 	response.SetHeader("Location", url)
+
+	return response
 }
 
 // Load a HTML file from a path and set the content type to text/html
