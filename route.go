@@ -3,7 +3,7 @@ package chc
 type Route struct {
 	Path        string
 	Methods     []string
-	Headers     map[string]string
+	Headers     map[any]any
 	File        string
 	Controller  func(request *Request, response *Response) (response_ *Response)
 	Middlewares []func(response *Response) (response_ *Response, next bool)
@@ -55,13 +55,14 @@ func (chc *CHC) handleRoute(route *Route, request *Request) *Response {
 }
 
 // Create a new route object
-func (chc *CHC) NewRoute(path string, methods []string, headers map[string]string, file string, controller func(request *Request, response *Response) (response_ *Response)) *Route {
+func (chc *CHC) NewRoute() *Route {
 	return &Route{
-		Path:       path,
-		Methods:    methods,
-		Headers:    headers,
-		File:       file,
-		Controller: controller,
+		Path:        "",
+		Methods:     []string{},
+		Headers:     make(map[any]any, 0),
+		File:        "",
+		Controller:  nil,
+		Middlewares: []func(response *Response) (response_ *Response, next bool){},
 	}
 }
 
