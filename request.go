@@ -11,14 +11,14 @@ type Request struct {
 	URL      string
 	Protocol string
 	Body     string
-	Params   map[string]string
-	Headers  map[string]string
-	Cookies  map[string]string
+	Params   map[any]any
+	Headers  map[any]any
+	Cookies  map[any]any
 	Conn     net.Conn
 }
 
-func (chc *CHC) parseCookies(cookies string) map[string]string {
-	cookieMap := make(map[string]string)
+func (chc *CHC) parseCookies(cookies string) map[any]any {
+	cookieMap := make(map[any]any)
 	lines := strings.Split(cookies, "\n")
 	cookieLine := ""
 
@@ -47,8 +47,8 @@ func (chc *CHC) parseCookies(cookies string) map[string]string {
 	return cookieMap
 }
 
-func (chc *CHC) parseHeaders(headers string) map[string]string {
-	headerMap := make(map[string]string)
+func (chc *CHC) parseHeaders(headers string) map[any]any {
+	headerMap := make(map[any]any)
 
 	headers = strings.TrimPrefix(headers, "")
 	headers = strings.TrimSpace(headers)
@@ -69,8 +69,8 @@ func (chc *CHC) parseHeaders(headers string) map[string]string {
 	return headerMap
 }
 
-func (chc *CHC) parseParams(url string) (map[string]string, string) {
-	params := make(map[string]string)
+func (chc *CHC) parseParams(url string) (map[any]any, string) {
+	params := make(map[any]any)
 	if !strings.Contains(url, "?") && !strings.Contains(url, "=") && !strings.Contains(url, "&") {
 		return params, url
 	}
@@ -96,8 +96,8 @@ func (chc *CHC) parseParams(url string) (map[string]string, string) {
 func (chc *CHC) parseRequest(requestString string, conn net.Conn) *Request {
 	request := &Request{}
 	request.Conn = conn
-	request.Headers = make(map[string]string)
-	request.Cookies = make(map[string]string)
+	request.Headers = make(map[any]any)
+	request.Cookies = make(map[any]any)
 
 	body := strings.Split(requestString, "\r\n\r\n")[1]
 
@@ -200,8 +200,8 @@ func (chc *CHC) parseRequest(requestString string, conn net.Conn) *Request {
 }
 
 // Parse the request body as a JSON object and return the result as a map
-func (request *Request) JsonBody() (map[string]interface{}, error) {
-	var jsonData map[string]interface{}
+func (request *Request) JsonBody() (map[any]any, error) {
+	var jsonData map[any]any
 	err := json.Unmarshal([]byte(request.Body), &jsonData)
 	if err != nil {
 		return nil, err
@@ -211,8 +211,8 @@ func (request *Request) JsonBody() (map[string]interface{}, error) {
 }
 
 // Parse the request body as a JSON array and return the result as a map
-func (request *Request) JsonArrayBody() ([]map[string]interface{}, error) {
-	var jsonData []map[string]interface{}
+func (request *Request) JsonArrayBody() ([]map[any]any, error) {
+	var jsonData []map[any]any
 	err := json.Unmarshal([]byte(request.Body), &jsonData)
 	if err != nil {
 		return nil, err
@@ -222,8 +222,8 @@ func (request *Request) JsonArrayBody() ([]map[string]interface{}, error) {
 }
 
 // Parse the request body as Form Data and return the result as a map
-func (request *Request) FormDataBody() (map[string]string, error) {
-	formData := make(map[string]string)
+func (request *Request) FormDataBody() (map[any]any, error) {
+	formData := make(map[any]any)
 	for _, pair := range strings.Split(request.Body, "&") {
 		kv := strings.Split(pair, "=")
 		if len(kv) != 2 {

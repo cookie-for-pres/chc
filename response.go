@@ -11,8 +11,8 @@ import (
 type Response struct {
 	StatusCode int
 	Body       string
-	Headers    map[string]string
-	Cookies    map[string]string
+	Headers    map[any]any
+	Cookies    map[any]any
 	Conn       net.Conn
 }
 
@@ -104,8 +104,18 @@ func (response *Response) SetStatusCode(statusCode int) *Response {
 	return response
 }
 
+// Make a new json object
+func (chc *CHC) NewJsonObject() map[any]any {
+	return make(map[any]any)
+}
+
+// Make a new json arry
+func (chc *CHC) NewJsonArray() []map[any]any {
+	return make([]map[any]any, 0)
+}
+
 // Set the response body to a json object
-func (response *Response) SetJsonObjectBody(object map[string]interface{}) error {
+func (response *Response) SetJsonObjectBody(object map[any]any) error {
 	data, err := json.Marshal(object)
 	if err != nil {
 		return err
@@ -114,7 +124,7 @@ func (response *Response) SetJsonObjectBody(object map[string]interface{}) error
 	response.Body = string(data)
 
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers["Content-Type"] = "application/json"
@@ -123,7 +133,7 @@ func (response *Response) SetJsonObjectBody(object map[string]interface{}) error
 }
 
 // Set the response body to a json array
-func (response *Response) SetJsonArrayBody(array []map[string]interface{}) error {
+func (response *Response) SetJsonArrayBody(array []map[any]any) error {
 	data, err := json.Marshal(array)
 	if err != nil {
 		return err
@@ -132,7 +142,7 @@ func (response *Response) SetJsonArrayBody(array []map[string]interface{}) error
 	response.Body = string(data)
 
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers["Content-Type"] = "application/json"
@@ -145,7 +155,7 @@ func (response *Response) SetStringBody(body string) *Response {
 	response.Body = body
 
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers["Content-Type"] = "text/plain"
@@ -156,7 +166,7 @@ func (response *Response) SetStringBody(body string) *Response {
 // Set a header for the response
 func (response *Response) SetHeader(key string, value string) *Response {
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers[key] = value
@@ -167,7 +177,7 @@ func (response *Response) SetHeader(key string, value string) *Response {
 // Set a cookie for the response
 func (response *Response) SetCookie(key string, value string) *Response {
 	if response.Cookies == nil {
-		response.Cookies = make(map[string]string)
+		response.Cookies = make(map[any]any)
 	}
 
 	response.Cookies[key] = value
@@ -199,7 +209,7 @@ func (response *Response) LoadHtmlFile(filePath string) error {
 	response.Body = string(data)
 
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers["Content-Type"] = "text/html"
@@ -224,7 +234,7 @@ func (response *Response) LoadImageFile(filePath string) error {
 	response.Body = string(data)
 
 	if response.Headers == nil {
-		response.Headers = make(map[string]string)
+		response.Headers = make(map[any]any)
 	}
 
 	response.Headers["Content-Type"] = "image/png"
